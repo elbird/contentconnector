@@ -28,6 +28,18 @@ public class FileTemplate implements ITemplate {
 	 * Key identifying this template.
 	 */
 	private String key;
+	/**
+	 * Flag indicating if the {@link org.apache.velocity.runtime.resource.loader.FileResourceLoader} is used
+	 */
+	private boolean usesFileResourceLoader = false;
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public boolean usesFileResourceLoader() {
+		return usesFileResourceLoader;
+	}
 
 	/**
 	 * gets the key of the template. usually a md5 hash
@@ -43,7 +55,22 @@ public class FileTemplate implements ITemplate {
 	public final String getSource() {
 		return source;
 	}
-
+	/**
+	 * 
+	 * @param filename
+	 */
+	public FileTemplate(final String filename) {
+		usesFileResourceLoader = true;
+		key = filename;
+	}
+	/**
+	 * 
+	 * @param file
+	 */
+	public FileTemplate(final File file) {
+		usesFileResourceLoader = true;
+		key = file.getAbsolutePath();
+	}
 	/**
 	 * Creates a new instance of FileTemplate.
 	 * @param stream - stream with the template code

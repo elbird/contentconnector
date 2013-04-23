@@ -19,4 +19,9 @@ public interface ITemplate {
 	 * @return source
 	 */
 	public String getSource();
+	
+	/**
+	 * Check if the template uses the Velocity File ResourceLoader
+	 */
+	public boolean usesFileResourceLoader();
 }

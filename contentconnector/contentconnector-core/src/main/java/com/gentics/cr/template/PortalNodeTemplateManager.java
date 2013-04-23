@@ -42,6 +42,7 @@ public class PortalNodeTemplateManager implements ITemplateManager {
 	/**
 	 * implements {@link com.gentics.cr.template.ITemplateManager#render(String, String)}
 	 */
+	@Deprecated
 	public String render(final String templatename, final String templatesource) throws CRException {
 		String renderedTemplate = null;
 
@@ -63,6 +64,13 @@ public class PortalNodeTemplateManager implements ITemplateManager {
 		}
 
 		return renderedTemplate;
+	}
+	/**
+	 * implements {@link com.gentics.cr.template.ITemplateManager#render(ITemplate)}
+	 */
+	@Override
+	public String render(ITemplate template) throws CRException {
+		return render(template.getKey(), template.getSource());
 	}
 
 }

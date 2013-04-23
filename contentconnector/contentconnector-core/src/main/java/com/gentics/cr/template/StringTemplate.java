@@ -39,6 +39,14 @@ public class StringTemplate implements ITemplate {
 	public final String getSource() {
 		return this.source;
 	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public boolean usesFileResourceLoader() {
+		return false;
+	}
 
 	/**
 	 * Creates a new instance of FileTemplate.

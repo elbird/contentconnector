@@ -25,6 +25,32 @@ import com.gentics.cr.exceptions.CRException;
  */
 public class VelocityTemplateManager implements ITemplateManager {
 
+	private class SimpleTemplate implements ITemplate {
+
+		private String key;
+		private String source;
+		
+		public SimpleTemplate(String key, String source) {
+			this.key = key;
+			this.source = source;
+		}
+		@Override
+		public String getKey() {
+			return key;
+		}
+
+		@Override
+		public String getSource() {
+			return source;
+		}
+
+		@Override
+		public boolean usesFileResourceLoader() {
+			return false;
+		}
+		
+		
+	}
 	/**
 	 * Log4j Logger.
 	 */
@@ -55,11 +81,19 @@ public class VelocityTemplateManager implements ITemplateManager {
 			this.objectstoput.put(key, value);
 		}
 	}
+	
+	/**
+	 * implements {@link com.gentics.cr.template.ITemplateManager#render(String, String)}.
+	 */
+	@Deprecated
+	public String render(String templateName, String templateSource) throws CRException {
+		return render(new SimpleTemplate(templateName, templateSource));
+	}
 
 	/**
-	 * implements {@link com.gentics.cr.template.ITemplateManager#render(String, String)}
+	 * implements {@link com.gentics.cr.template.ITemplateManager#render(ITemplate)}
 	 */
-	public String render(String templateName, String templateSource) throws CRException {
+	public String render(ITemplate crTemplate) throws CRException {
 		String renderedTemplate = null;
 		long s1 = System.currentTimeMillis();
 
@@ -71,13 +105,13 @@ public class VelocityTemplateManager implements ITemplateManager {
 		rep.setEncoding(this.encoding);
 		try {
 
-			Template template = this.templates.get(templateName);
+			Template template = this.templates.get(crTemplate.getKey());
 			if (template == null) {
-				rep.putStringResource(templateName, templateSource);
+				rep.putStringResource(crTemplate.getKey(), crTemplate.getSource());
 
-				template = Velocity.getTemplate(templateName);
-				rep.removeStringResource(templateName);
-				this.templates.put(templateName, template);
+				template = Velocity.getTemplate(crTemplate.getKey());
+				rep.removeStringResource(crTemplate.getKey());
+				this.templates.put(crTemplate.getKey(), template);
 			}
 
 			VelocityContext context = new VelocityContext();

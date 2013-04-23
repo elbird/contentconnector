@@ -25,6 +25,14 @@ public interface ITemplateManager {
 	 * @return rendered template as string.
 	 * @throws CRException
 	 */
+	@Deprecated
 	public String render(String templatename, String templatesource) throws CRException;
+	
+	/**
+	 * 
+	 * @param template
+	 * @return
+	 */
+	public String render(ITemplate template) throws CRException;
 
 }

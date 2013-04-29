@@ -25,12 +25,16 @@ import com.gentics.cr.exceptions.CRException;
  */
 public class VelocityTemplateManager implements ITemplateManager {
 
-	private class SimpleTemplate implements ITemplate {
+	/*
+	 * Private simple ITemplate implementation, needed as long
+	 * as deprecated method render(String, String) is still used
+	 */
+	private class BasicTemplate implements ITemplate {
 
 		private String key;
 		private String source;
 		
-		public SimpleTemplate(String key, String source) {
+		public BasicTemplate(String key, String source) {
 			this.key = key;
 			this.source = source;
 		}
@@ -45,7 +49,7 @@ public class VelocityTemplateManager implements ITemplateManager {
 		}
 
 		@Override
-		public boolean usesFileResourceLoader() {
+		public boolean isFileResourceLoaderUsable() {
 			return false;
 		}
 		
@@ -87,7 +91,7 @@ public class VelocityTemplateManager implements ITemplateManager {
 	 */
 	@Deprecated
 	public String render(String templateName, String templateSource) throws CRException {
-		return render(new SimpleTemplate(templateName, templateSource));
+		return render(new BasicTemplate(templateName, templateSource));
 	}
 
 	/**
@@ -95,25 +99,29 @@ public class VelocityTemplateManager implements ITemplateManager {
 	 */
 	public String render(ITemplate crTemplate) throws CRException {
 		String renderedTemplate = null;
+		StringResourceRepository rep = null;
 		long s1 = System.currentTimeMillis();
-
-		StringResourceRepository rep = StringResourceLoader.getRepository();
-		if (rep == null) {
-			rep = new StringResourceRepositoryImpl();
-			StringResourceLoader.setRepository(StringResourceLoader.REPOSITORY_NAME_DEFAULT, rep);
+		if(!crTemplate.isFileResourceLoaderUsable()) {
+			rep = StringResourceLoader.getRepository();
+			if (rep == null) {
+				rep = new StringResourceRepositoryImpl();
+				StringResourceLoader.setRepository(StringResourceLoader.REPOSITORY_NAME_DEFAULT, rep);
+			}
+			rep.setEncoding(this.encoding);
 		}
-		rep.setEncoding(this.encoding);
 		try {
-
 			Template template = this.templates.get(crTemplate.getKey());
 			if (template == null) {
-				rep.putStringResource(crTemplate.getKey(), crTemplate.getSource());
-
-				template = Velocity.getTemplate(crTemplate.getKey());
-				rep.removeStringResource(crTemplate.getKey());
+				if(rep != null) {				
+					rep.putStringResource(crTemplate.getKey(), crTemplate.getSource());
+					template = Velocity.getTemplate(crTemplate.getKey());
+					rep.removeStringResource(crTemplate.getKey());
+				} else {
+					template = Velocity.getTemplate(crTemplate.getKey());
+				}
 				this.templates.put(crTemplate.getKey(), template);
-			}
-
+			} 
+			
 			VelocityContext context = new VelocityContext();
 			Iterator<String> it = this.objectstoput.keySet().iterator();
 			while (it.hasNext()) {
@@ -132,7 +140,9 @@ public class VelocityTemplateManager implements ITemplateManager {
 		} finally {
 			this.objectstoput = new HashMap<String, Object>();
 		}
-		log.debug("Velocity has been rendered in " + (System.currentTimeMillis() - s1) + "ms");
+		if (log.isDebugEnabled()) {
+			log.debug("Velocity has been rendered in " + (System.currentTimeMillis() - s1) + "ms");
+		}
 		return renderedTemplate;
 	}
 

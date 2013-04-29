@@ -107,7 +107,7 @@ public class NavObject {
 			}
 		}
 		myTemplateManager.put("nav", this);
-		return (myTemplateManager.render(this.template.getKey(), this.template.getSource()));
+		return (myTemplateManager.render(this.template));
 	}
 
 	/**

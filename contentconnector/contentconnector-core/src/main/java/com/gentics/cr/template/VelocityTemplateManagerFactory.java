@@ -122,10 +122,6 @@ public class VelocityTemplateManagerFactory {
 		return (template);
 	}
 
-	private static void configure(String encoding, String macropath) throws Exception {
-		configure(encoding, macropath, "");
-	}
-
 	private static void configure(String encoding, String macropath, String propFile) throws Exception {
 		Properties props = new Properties();
 
@@ -135,10 +131,13 @@ public class VelocityTemplateManagerFactory {
 			props.setProperty(
 				"string.resource.loader.class",
 				"org.apache.velocity.runtime.resource.loader.StringResourceLoader");
-			props.setProperty("resource.loader", "file,string");
-
-			if (macropath != null) {
-			}
+			props.setProperty(
+					"file.resource.loader.class",
+					"org.apache.velocity.runtime.resource.loader.FileResourceLoader");
+			props.setProperty("file.resource.loader.cache", "true");
+			props.setProperty("file.resource.loader.modificationCheckInterval", "10");
+			
+			props.setProperty("resource.loader", "string, file");
 
 			// if a properties file is given, use this one to set the vtl-properties
 		} else {
@@ -169,6 +168,8 @@ public class VelocityTemplateManagerFactory {
 
 			if (!props.containsKey("file.resource.loader.path")) {
 				props.setProperty("file.resource.loader.path", macropath);
+			} else {
+				props.setProperty("file.resource.loader.path", props.getProperty("file.resource.loader.path") + ", " + macropath);
 			}
 			
 			if (!props.containsKey("velocimacro.library")) {

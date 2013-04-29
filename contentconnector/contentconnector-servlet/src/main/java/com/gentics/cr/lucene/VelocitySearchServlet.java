@@ -177,7 +177,7 @@ public class VelocitySearchServlet extends HttpServlet {
 		}
 
 		try {
-			String output = this.vtl.render(this.tpl.getKey(), this.tpl.getSource());
+			String output = this.vtl.render(this.tpl);
 			response.getWriter().write(output);
 		} catch (Exception ex) {
 			ex.printStackTrace();

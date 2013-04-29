@@ -117,7 +117,7 @@ public abstract class VelocityServlet extends HttpServlet {
 		try {
 			String timestamp = new Long(System.currentTimeMillis()).toString();
 			vtl.put("timestamp", timestamp);
-			String output = vtl.render(tpl.getKey(), tpl.getSource());
+			String output = vtl.render(tpl);
 			response.getWriter().write(output);
 		} catch (Exception ex) {
 			log.error("Error rendering template for " + this.getClass().getSimpleName() + ".", ex);

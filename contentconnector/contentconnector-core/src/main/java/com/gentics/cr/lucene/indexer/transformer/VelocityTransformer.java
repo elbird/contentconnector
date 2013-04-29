@@ -251,7 +251,7 @@ public class VelocityTransformer extends ContentTransformer {
 			if (sourceAttribute != null) {
 				tmpl = new StringTemplate(bean.getString(sourceAttribute));
 			}
-			String output = vtm.render(tmpl.getKey(), tmpl.getSource());
+			String output = vtm.render(tmpl);
 			if (output != null && targetAttribute != null) {
 				if (appendToTargetAttribute) {
 					Object target = bean.get(targetAttribute);

@@ -3,6 +3,7 @@ package com.gentics.cr.template;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
@@ -29,20 +30,26 @@ public class FileTemplate implements ITemplate {
 	 */
 	private String key;
 	/**
-	 * Flag indicating if the {@link org.apache.velocity.runtime.resource.loader.FileResourceLoader} is used
+	 * The file 
 	 */
-	private boolean usesFileResourceLoader = false;
+	private File file;
 	
 	/**
-	 * 
-	 * @return
+	 * Flag indicating if the {@link org.apache.velocity.runtime.resource.loader.FileResourceLoader} can be used
 	 */
-	public boolean usesFileResourceLoader() {
-		return usesFileResourceLoader;
+	private boolean isFileResourceLoaderUsable = false;
+	
+	/**
+	 * indicates if {@link org.apache.velocity.runtime.resource.loader.FileResourceLoader} can be used
+	 * @return true when the {@link org.apache.velocity.runtime.resource.loader.FileResourceLoader} can be used
+	 */
+	public boolean isFileResourceLoaderUsable() {
+		return isFileResourceLoaderUsable;
 	}
 
 	/**
 	 * gets the key of the template. usually a md5 hash
+	 * or the absolute path to the template file when usesFileResourceLoader() is true
 	 * @return key
 	 */
 	public final String getKey() {
@@ -52,24 +59,35 @@ public class FileTemplate implements ITemplate {
 	/**
 	 * @return source of the template.
 	 */
-	public final String getSource() {
+	public final String getSource() throws CRException {
+		/*
+		 * if source is empty and file exists: try to read source from the File
+		 */
+		if(source == null && file != null) {
+			readSource(file);
+		}
 		return source;
 	}
+
 	/**
+	 * Creates a new instance of FileTemplate.
 	 * 
-	 * @param filename
+	 * @param filename the path to file witch contains the template
 	 */
 	public FileTemplate(final String filename) {
-		usesFileResourceLoader = true;
-		key = filename;
+		this.isFileResourceLoaderUsable = true;
+		this.file = new File(filename);
+		this.key = file.getAbsolutePath();
 	}
 	/**
+	 * Creates a new instance of FileTemplate.
 	 * 
-	 * @param file
+	 * @param file the File witch contains the template 
 	 */
 	public FileTemplate(final File file) {
-		usesFileResourceLoader = true;
-		key = file.getAbsolutePath();
+		this.isFileResourceLoaderUsable = true;
+		this.key = file.getAbsolutePath();
+		this.file = file;
 	}
 	/**
 	 * Creates a new instance of FileTemplate.
@@ -78,6 +96,7 @@ public class FileTemplate implements ITemplate {
 	 * generating the md5sum of the stream.
 	 */
 	public FileTemplate(final InputStream stream) throws CRException {
+		this.isFileResourceLoaderUsable = false;
 		readSource(stream);
 		try {
 			MessageDigest digest = MessageDigest.getInstance("MD5");
@@ -95,12 +114,26 @@ public class FileTemplate implements ITemplate {
 	 * generating the md5sum of the stream.
 	 */
 	public FileTemplate(final BufferedReader streamReader) throws CRException {
+		this.isFileResourceLoaderUsable = false;
 		readSource(streamReader);
 		try {
 			MessageDigest digest = MessageDigest.getInstance("MD5");
 			digest.update(this.source.getBytes());
 			this.key = new String(digest.digest());
 		} catch (NoSuchAlgorithmException e) {
+			throw new CRException(e);
+		}
+	}
+	/**
+	 * Reads the contents of the provided file into the template source
+	 * 
+	 * @param file - the file to read
+	 * @throws CRException when the file could not be found or not read
+	 */
+	private void readSource(File file) throws CRException {
+		try {
+			readSource(new FileInputStream(file));
+		} catch (FileNotFoundException e) {
 			throw new CRException(e);
 		}
 	}

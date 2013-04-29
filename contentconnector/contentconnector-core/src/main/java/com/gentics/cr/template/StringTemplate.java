@@ -44,7 +44,7 @@ public class StringTemplate implements ITemplate {
 	 * 
 	 * @return
 	 */
-	public boolean usesFileResourceLoader() {
+	public boolean isFileResourceLoaderUsable() {
 		return false;
 	}
 

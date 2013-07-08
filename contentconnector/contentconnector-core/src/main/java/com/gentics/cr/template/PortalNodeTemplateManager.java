@@ -40,19 +40,33 @@ public class PortalNodeTemplateManager implements ITemplateManager {
 	}
 
 	/**
+	 * implements {@link com.gentics.cr.template.ITemplateManager#render(ITemplate, HashMap<String, Object>)}
+	 */
+	public String render(ITemplate crTemplate, HashMap<String, Object> contextObjects) throws CRException {
+		return render(crTemplate.getKey(), crTemplate.getSource(), contextObjects);
+	}
+	
+	/**
 	 * implements {@link com.gentics.cr.template.ITemplateManager#render(String, String)}
 	 */
 	@Deprecated
 	public String render(final String templatename, final String templatesource) throws CRException {
+		return render(templatename, templatesource, contextObjects);
+	}
+	
+	/**
+	 * implements {@link com.gentics.cr.template.ITemplateManager#render(String, String)}
+	 */
+	public String render(final String templatename, final String templatesource, HashMap<String, Object> contextObjects) throws CRException {
 		String renderedTemplate = null;
 
 		TemplateProcessor processor = PortalNodeInteractor.getPortletTemplateProcessor(this.portlet);
 
 		try {
-			Iterator<String> it = this.contextObjects.keySet().iterator();
+			Iterator<String> it = contextObjects.keySet().iterator();
 			while (it.hasNext()) {
 				String key = it.next();
-				processor.put(key, this.contextObjects.get(key));
+				processor.put(key, contextObjects.get(key));
 			}
 			renderedTemplate = processor.getOutputForSource(templatesource, this.portlet);
 		} catch (TemplateNotFoundException e) {

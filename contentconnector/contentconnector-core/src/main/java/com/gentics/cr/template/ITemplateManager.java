@@ -1,5 +1,7 @@
 package com.gentics.cr.template;
 
+import java.util.HashMap;
+
 import com.gentics.cr.exceptions.CRException;
 
 /**
@@ -17,7 +19,7 @@ public interface ITemplateManager {
 	 * @param value
 	 */
 	public void put(String key, Object value);
-
+	
 	/**
 	 * Render the given template into a String.
 	 * @param templatename
@@ -29,10 +31,21 @@ public interface ITemplateManager {
 	public String render(String templatename, String templatesource) throws CRException;
 	
 	/**
+	 * Render the given template into a String
 	 * 
-	 * @param template
-	 * @return
+	 * @param template the CR Template
+	 * @return the rendered template as string
 	 */
 	public String render(ITemplate template) throws CRException;
+	
+	
+	/**
+	 * Render the given template into a String using 
+	 * 
+	 * @param crTemplate the CR Template
+	 * @param contextObjects context obje 
+	 * @return the rendered template as string
+	 */
+	public String render(ITemplate crTemplate, HashMap<String, Object> contextObjects) throws CRException;
 
 }

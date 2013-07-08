@@ -42,6 +42,9 @@ public class VelocityTemplateManager implements ITemplateManager {
 		public String getKey() {
 			return key;
 		}
+		public final String getKey(boolean useFileResourceLoader) {
+			return this.getKey();
+		}
 
 		@Override
 		public String getSource() {
@@ -98,6 +101,12 @@ public class VelocityTemplateManager implements ITemplateManager {
 	 * implements {@link com.gentics.cr.template.ITemplateManager#render(ITemplate)}
 	 */
 	public String render(ITemplate crTemplate) throws CRException {
+		return this.render(crTemplate, this.objectstoput);
+	}
+	/**
+	 * implements {@link com.gentics.cr.template.ITemplateManager#render(ITemplate, HashMap<String, Object>)}
+	 */
+	public String render(ITemplate crTemplate, HashMap<String, Object> contextObjects) throws CRException {
 		String renderedTemplate = null;
 		StringResourceRepository rep = null;
 		long s1 = System.currentTimeMillis();
@@ -110,23 +119,23 @@ public class VelocityTemplateManager implements ITemplateManager {
 			rep.setEncoding(this.encoding);
 		}
 		try {
-			Template template = this.templates.get(crTemplate.getKey());
+			Template template = this.templates.get(crTemplate.getKey(rep == null ? true : false));
 			if (template == null) {
 				if(rep != null) {				
 					rep.putStringResource(crTemplate.getKey(), crTemplate.getSource());
 					template = Velocity.getTemplate(crTemplate.getKey());
 					rep.removeStringResource(crTemplate.getKey());
 				} else {
-					template = Velocity.getTemplate(crTemplate.getKey());
+					template = Velocity.getTemplate(crTemplate.getKey(true));
 				}
-				this.templates.put(crTemplate.getKey(), template);
+				this.templates.put(crTemplate.getKey(rep == null ? true : false), template);
 			} 
 			
 			VelocityContext context = new VelocityContext();
-			Iterator<String> it = this.objectstoput.keySet().iterator();
+			Iterator<String> it = contextObjects.keySet().iterator();
 			while (it.hasNext()) {
 				String key = it.next();
-				context.put(key, this.objectstoput.get(key));
+				context.put(key, contextObjects.get(key));
 			}
 			StringWriter ret = new StringWriter();
 			template.merge(context, ret);

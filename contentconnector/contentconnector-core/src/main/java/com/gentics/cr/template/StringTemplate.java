@@ -31,6 +31,11 @@ public class StringTemplate implements ITemplate {
 	public final String getKey() {
 		return this.key;
 	}
+	
+	public final String getKey(boolean useFileResourceLoader) {
+		return this.getKey();
+	}
+
 
 	/**
 	 * gets the source of the template.

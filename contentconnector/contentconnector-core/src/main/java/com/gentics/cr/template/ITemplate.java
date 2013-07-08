@@ -15,6 +15,7 @@ public interface ITemplate {
 	 * @return key
 	 */
 	public String getKey();
+	public String getKey(boolean useFileResourceLoader);
 
 	/**
 	 * gets the source of the template

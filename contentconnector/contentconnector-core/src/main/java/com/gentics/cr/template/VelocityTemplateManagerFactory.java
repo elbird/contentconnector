@@ -127,6 +127,7 @@ public class VelocityTemplateManagerFactory {
 
 		// no file with properties given, set default properties
 		if (CRUtil.isEmpty(propFile)) {
+			props.setProperty("resource.loader", "file, string");
 			props.setProperty("string.loader.description", "String Resource Loader");
 			props.setProperty(
 				"string.resource.loader.class",
@@ -136,8 +137,11 @@ public class VelocityTemplateManagerFactory {
 					"org.apache.velocity.runtime.resource.loader.FileResourceLoader");
 			props.setProperty("file.resource.loader.cache", "true");
 			props.setProperty("file.resource.loader.modificationCheckInterval", "10");
-			
-			props.setProperty("resource.loader", "string, file");
+			if (!props.containsKey("file.resource.loader.path")) {
+				props.setProperty("file.resource.loader.path", "Z:\\gitprojects\\portletsuite\\portletsuite-config\\target\\config");
+			} else {
+				props.setProperty("file.resource.loader.path", props.getProperty("file.resource.loader.path") + ", " + "Z:\\gitprojects\\portletsuite\\portletsuite-config\\target\\config");
+			}
 
 			// if a properties file is given, use this one to set the vtl-properties
 		} else {

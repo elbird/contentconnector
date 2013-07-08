@@ -55,7 +55,18 @@ public class FileTemplate implements ITemplate {
 	public final String getKey() {
 		return key;
 	}
-
+	
+	/**
+	 * gets the key of the template. usually a md5 hash
+	 * or the absolute path to the template file when usesFileResourceLoader() is true
+	 * @return key
+	 */
+	public final String getKey(boolean useFileResourceLoader) {
+		if (useFileResourceLoader) {
+			return file.getPath();
+		} 
+		return this.getKey();
+	}
 	/**
 	 * @return source of the template.
 	 */

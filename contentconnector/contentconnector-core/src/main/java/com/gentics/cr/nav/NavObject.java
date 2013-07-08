@@ -1,5 +1,6 @@
 package com.gentics.cr.nav;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
@@ -30,6 +31,7 @@ public class NavObject {
 	private CRConfig conf;
 	private ITemplate template;
 	private Map<String, Object> objects;
+	private ITemplateManager templateManager;
 
 	/**
 	 * Create new instance of NavObject.
@@ -41,6 +43,28 @@ public class NavObject {
 	 * @param objects 
 	 */
 	public NavObject(CRConfig conf, CRResolvableBean bean, int level, Vector<String> path,
+			ITemplate template, Map<String, Object> objects) {
+		init(conf, bean, level, path, template, objects);
+		// Initialize Velocity Context
+		templateManager = this.conf.getTemplateManager();
+	}
+	
+	/**
+	 * Create new instance of NavObject.
+	 * @param conf
+	 * @param bean
+	 * @param level
+	 * @param path
+	 * @param template
+	 * @param objects 
+	 */
+	public NavObject(CRConfig conf, CRResolvableBean bean, int level, Vector<String> path,
+			ITemplate template, Map<String, Object> objects, ITemplateManager templateManager) {
+		init(conf, bean, level, path, template, objects);
+		this.templateManager = templateManager;
+	}
+	
+	private void init(CRConfig conf, CRResolvableBean bean, int level, Vector<String> path,
 			ITemplate template, Map<String, Object> objects) {
 		this.bean = bean;
 		this.path = path;
@@ -96,18 +120,16 @@ public class NavObject {
 	 * @throws CRException
 	 */
 	public String render() throws CRException {
-		// Initialize Velocity Context
-		ITemplateManager myTemplateManager = this.conf.getTemplateManager();
-
+		HashMap<String, Object> context = new HashMap<String, Object>();
 		// enrich template context
 		if (objects != null) {
 			for (Iterator<Map.Entry<String, Object>> it = objects.entrySet().iterator(); it.hasNext();) {
 				Map.Entry<String, Object> entry = it.next();
-				myTemplateManager.put(entry.getKey(), entry.getValue());
+				context.put(entry.getKey(), entry.getValue());
 			}
 		}
-		myTemplateManager.put("nav", this);
-		return (myTemplateManager.render(this.template));
+		context.put("nav", this);
+		return (templateManager.render(this.template, context));
 	}
 
 	/**
@@ -123,7 +145,7 @@ public class NavObject {
 		Vector<String> p = (Vector<String>) this.path.clone();
 		p.add(this.bean.getContentid());
 		for (CRResolvableBean child : this.bean.getChildRepository()) {
-			NavObject no = new NavObject(conf, child, level + 1, p, this.template, objects);
+			NavObject no = new NavObject(conf, child, level + 1, p, this.template, objects, templateManager);
 			try {
 				ret.append(no.render());
 			} catch (CRException e) {
